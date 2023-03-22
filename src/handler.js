@@ -66,6 +66,20 @@ const addBook = (req, h) => {
   return response;
 };
 
+const getAllBooks = () => {
+  const tempBooks = books.map((book) => ({
+    id: book.id,
+    name: book.name,
+    publisher: book.publisher,
+  }));
+  return {
+    status: 'success',
+    data: {
+      books: tempBooks,
+    },
+  };
+};
+
 module.exports = {
-  addBook,
+  addBook, getAllBooks,
 };
