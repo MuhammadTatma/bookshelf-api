@@ -11,7 +11,7 @@ const addBook = (req, h) => {
   const insertedAt = new Date().toISOString();
   const updatedAt = insertedAt;
 
-  if (name === undefined) {
+  if (!name) {
     const response = h.response({
       status: 'fail',
       message: 'Gagal menambahkan buku. Mohon isi nama buku',
@@ -80,6 +80,27 @@ const getAllBooks = () => {
   };
 };
 
+const getBookById = (req, h) => {
+  const { id } = req.params;
+  const book = books.filter((iter) => iter.id === id)[0];
+  if (!book) {
+    const response = h.response({
+      status: 'fail',
+      message: 'Buku tidak ditemukan',
+    });
+    response.code(404);
+    return response;
+  }
+
+  const response = h.response({
+    status: 'success',
+    data: {
+      book,
+    },
+  });
+  return response;
+};
+
 module.exports = {
-  addBook, getAllBooks,
+  addBook, getAllBooks, getBookById,
 };
