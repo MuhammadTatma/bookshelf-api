@@ -88,13 +88,14 @@ const getAllBooks = (req, h) => {
     name: book.name,
     publisher: book.publisher,
   }));
-
-  return {
+  const response = h.response({
     status: 'success',
     data: {
       books: tempBooks,
     },
-  };
+  });
+  response.code(200);
+  return response;
 };
 
 const getBookById = (req, h) => {
