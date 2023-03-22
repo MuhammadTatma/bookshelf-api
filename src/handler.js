@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 const { nanoid } = require('nanoid');
 const books = require('./books');
 
@@ -66,12 +67,28 @@ const addBook = (req, h) => {
   return response;
 };
 
-const getAllBooks = () => {
-  const tempBooks = books.map((book) => ({
+const getAllBooks = (req, h) => {
+  let { name, reading, finished } = req.query;
+  let tempBooks = books;
+
+  if (name) {
+    tempBooks = tempBooks.filter((book) => book.name.toLowerCase().indexOf(name.toLowerCase()) !== -1);
+  }
+  if (reading) {
+    reading = reading === '1';
+    tempBooks = tempBooks.filter((book) => book.reading === reading);
+  }
+  if (finished) {
+    finished = finished === '1';
+    tempBooks = tempBooks.filter((book) => book.finished === finished);
+  }
+
+  tempBooks = tempBooks.map((book) => ({
     id: book.id,
     name: book.name,
     publisher: book.publisher,
   }));
+
   return {
     status: 'success',
     data: {
@@ -104,7 +121,7 @@ const getBookById = (req, h) => {
 const updateBookById = (req, h) => {
   const { id } = req.params;
   const {
-    name, year, author, summary, publisher, pageCount, readPage, reading
+    name, year, author, summary, publisher, pageCount, readPage, reading,
   } = req.payload;
   const updatedAt = new Date().toISOString();
   const index = books.findIndex((iter) => iter.id === id);
@@ -134,16 +151,7 @@ const updateBookById = (req, h) => {
     return response;
   }
   books[index] = {
-    ...books[index],
-    name,
-    year,
-    author,
-    summary,
-    publisher,
-    pageCount,
-    readPage,
-    reading,
-    updatedAt,
+    ...books[index], name, year, author, summary, publisher, pageCount, readPage, reading, updatedAt,
   };
   const response = h.response({
     status: 'success',
@@ -153,6 +161,27 @@ const updateBookById = (req, h) => {
   return response;
 };
 
+const deleteBookById = (req, h) => {
+  const { id } = req.params;
+  const index = books.findIndex((book) => book.id === id);
+
+  if (index === -1) {
+    const response = h.response({
+      status: 'fail',
+      message: 'Buku gagal dihapus. Id tidak ditemukan',
+    });
+    response.code(404);
+    return response;
+  }
+  books.splice(index, 1);
+  const response = h.response({
+    status: 'success',
+    message: 'Buku berhasil dihapus',
+  });
+  response.code(200);
+  return response;
+};
+
 module.exports = {
-  addBook, getAllBooks, getBookById, updateBookById
+  addBook, getAllBooks, getBookById, updateBookById, deleteBookById,
 };
